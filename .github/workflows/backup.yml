@@ -1,1 +1,32 @@
+name: WordPress Backup
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 毎日0時に実行（UTC）
+  workflow_dispatch:      # 手動でも実行可能
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests feedparser markdownify
+
+      - name: Run backup script
+        run: python backup.py
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Automated backup $(date)"
+          git push
 
